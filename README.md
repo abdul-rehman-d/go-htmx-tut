@@ -3,6 +3,10 @@
 A tutorial (once again)  
 But I deployed it manually on AWS and Docker
 
+## Deployment
+- Well I bought my domain and learned how to setup subdomains just on the dashboard to point to EC2 instance.
+- I used Caddy as reverse proxy to my Docker container which is running the go app.
+
 ## Future plans
 Well, not much but:
 - CI/CD
