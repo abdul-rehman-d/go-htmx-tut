@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"slices"
 	"strconv"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -126,7 +125,6 @@ func main() {
 	})
 
 	e.DELETE("/contacts/:id", func(c echo.Context) error {
-		time.Sleep(time.Second * 2)
 		idStr := c.Param("id")
 		id, err := strconv.Atoi(idStr)
 		if err != nil {
