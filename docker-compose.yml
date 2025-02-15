@@ -1,0 +1,28 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    # depends_on:
+    #   - db
+    environment:
+      DATABASE_URL: "postgres://user:password@db:5432/mydatabase?sslmode=disable"
+    volumes:
+      - ./css:/app/css
+      - ./images:/app/images
+      - ./views:/app/views
+    restart: always
+
+#   db:
+#     image: postgres:16
+#     environment:
+#       POSTGRES_USER: user
+#       POSTGRES_PASSWORD: password
+#       POSTGRES_DB: mydatabase
+#     volumes:
+#       - db_data:/var/lib/postgresql/data
+#     restart: always
+#
+# volumes:
+#   db_data:
+
