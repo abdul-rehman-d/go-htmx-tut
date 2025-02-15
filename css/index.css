@@ -1,0 +1,21 @@
+.htmx-indicator {
+    opacity:0;
+    transition: opacity 500ms ease-in;
+}
+.htmx-request .htmx-indicator{
+    opacity:1
+}
+.htmx-request.htmx-indicator{
+    opacity:1
+}
+
+.contact {
+    max-height: 2rem;
+    padding-bottom: .5rem;
+    transition: max-height 500ms ease-in, opacity 500ms ease-in;
+}
+.contact.htmx-swapping {
+    overflow-y: hidden;
+    max-height: 0;
+    opacity: 0;
+}

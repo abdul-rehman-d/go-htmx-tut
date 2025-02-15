@@ -4,10 +4,15 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"slices"
+	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
+
+var id = 1
 
 type Templates struct {
 	templates *template.Template
@@ -24,6 +29,7 @@ func newTemplate() *Templates {
 }
 
 type Contact struct {
+	Id    int
 	Name  string
 	Email string
 }
@@ -60,12 +66,21 @@ func (d *Data) hasEmail(email string) bool {
 	return false
 }
 
+func (d *Data) getIndexByID(id int) int {
+	for idx, contact := range d.Contacts {
+		if contact.Id == id {
+			return idx
+		}
+	}
+	return -1
+}
+
 func newStore() *Store {
 	return &Store{
 		Data: Data{
 			Contacts: Contacts{
-				{"AR", "ar@email.com"},
-				{"AA", "aa@email.com"},
+				{1, "AR", "ar@email.com"},
+				{2, "AA", "aa@email.com"},
 			},
 		},
 		Form: newFormData(),
@@ -76,12 +91,16 @@ func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
 
+	e.Static("/images", "images")
+	e.Static("/css", "css")
+
 	e.Renderer = newTemplate()
 
 	store := newStore()
 
 	e.GET("/", func(c echo.Context) error {
-		return c.Render(200, "index", store)
+		store.Form = newFormData()
+		return c.Render(http.StatusOK, "index", store)
 	})
 
 	e.POST("/contacts", func(c echo.Context) error {
@@ -97,12 +116,32 @@ func main() {
 			return c.Render(http.StatusUnprocessableEntity, "form", store.Form)
 		}
 
-		contact := Contact{name, email}
+		contact := Contact{id, name, email}
+		id++
 
 		store.Data.Contacts = append(store.Data.Contacts, contact)
 
-		c.Render(200, "form", newFormData())
-		return c.Render(200, "oob-contact", contact)
+		c.Render(http.StatusOK, "form", newFormData())
+		return c.Render(http.StatusOK, "oob-contact", contact)
+	})
+
+	e.DELETE("/contacts/:id", func(c echo.Context) error {
+		time.Sleep(time.Second * 2)
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			return c.String(http.StatusBadRequest, "Invalid ID")
+		}
+
+		contactIdx := store.Data.getIndexByID(id)
+
+		if contactIdx == -1 {
+			return c.String(http.StatusNotFound, "Contact not found")
+		}
+
+		store.Data.Contacts = slices.Delete(store.Data.Contacts, contactIdx, contactIdx+1)
+
+		return c.NoContent(http.StatusOK)
 	})
 
 	e.Logger.Fatal(e.Start(":8080"))
